@@ -1,0 +1,29 @@
+name: Auto Release Skin
+
+on:
+  push:
+    tags:
+      - "skin-v*"     # 皮肤专用 tag，避免与主程序镜像的 v0.9.0 撞车
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run pack      # 生成 aurora-skin.zip
+
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: aurora-skin.zip
+          name: 皮肤包 ${{ github.ref_name }}   # 例如 skin-v1.0.0
+          generate_release_notes: true
